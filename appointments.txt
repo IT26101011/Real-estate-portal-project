@@ -1,0 +1,2 @@
+A001,C001,AG001,P001,2026-06-15,10:00AM-11:00AM,Confirmed,First client visit
+A001,c005,AG002,p004,2026-10-13,10:00AM-11:00AM,pending,Second visit
