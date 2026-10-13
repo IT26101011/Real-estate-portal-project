@@ -1,0 +1,1 @@
+p001,Luxury Apartment,colombo,150000.0,apartment,3,2,Available
