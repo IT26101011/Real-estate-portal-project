@@ -1,10 +1,7 @@
 package com.realestate;
 
 import com.realestate.model.Appointment;
-import com.realestate.model.Property;
-import com.realestate.repository.AppointmentRepository;
 import com.realestate.service.AppointmentService;
-import com.realestate.service.PropertyService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -12,146 +9,109 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         AppointmentService appointmentService = new AppointmentService();
-        AppointmentRepository appointmentRepository = new AppointmentRepository();
-        PropertyService propertyService = new PropertyService();
-
         Scanner scanner = new Scanner(System.in);
-        boolean running = true;
 
-        System.out.println("===========================================");
-        System.out.println("     REAL ESTATE PORTAL - MAIN SYSTEM      ");
-        System.out.println("===========================================");
-
-        while (running) {
-            System.out.println("\nPlease choose an option:");
-            System.out.println("1. Book New Appointment");
-            System.out.println("2. View All Appointments");
-            System.out.println("3. Add New Property");
-            System.out.println("4. View All Properties");
-            System.out.println("5. Exit");
+        while (true) {
+            System.out.println("\n========== REAL ESTATE APPOINTMENT MANAGEMENT ==========");
+            System.out.println("1. Book New Appointment (Create)");
+            System.out.println("2. View All Appointments (Read)");
+            System.out.println("3. Reschedule Appointment (Update)");
+            System.out.println("4. Cancel Appointment (Delete)");
+            System.out.println("5. Search Appointments by Client ID");
+            System.out.println("6. Exit");
             System.out.print("Enter choice: ");
 
-            String choice = scanner.nextLine();
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
 
             switch (choice) {
-                case "1":
-                    System.out.print("Enter Appointment ID (e.g. A003): ");
-                    String appointmentId = scanner.nextLine();
-
-                    System.out.print("Enter Client ID (e.g. C001): ");
+                case 1:
+                    System.out.print("Enter Appointment ID: ");
+                    String id = scanner.nextLine();
+                    System.out.print("Enter Client ID: ");
                     String clientId = scanner.nextLine();
-
-                    System.out.print("Enter Agent ID (e.g. AG001): ");
+                    System.out.print("Enter Agent ID: ");
                     String agentId = scanner.nextLine();
-
-                    System.out.print("Enter Property ID (e.g. P001): ");
+                    System.out.print("Enter Property ID: ");
                     String propertyId = scanner.nextLine();
-
-                    System.out.print("Enter Date (e.g. 2026-06-15): ");
-                    String appointmentDate = scanner.nextLine();
-
-                    System.out.print("Enter Time Slot (e.g. 10:00AM-11:00AM): ");
-                    String timeSlot = scanner.nextLine();
-
-                    System.out.print("Enter Status (e.g. Confirmed/Pending): ");
+                    System.out.print("Enter Date (YYYY-MM-DD): ");
+                    String date = scanner.nextLine();
+                    System.out.print("Enter Time (HH:MM): ");
+                    String time = scanner.nextLine();
+                    System.out.print("Enter Status (CONFIRMED/PENDING): ");
                     String status = scanner.nextLine();
-
-                    System.out.print("Enter Notes (e.g. First visit): ");
+                    System.out.print("Enter Notes: ");
                     String notes = scanner.nextLine();
 
-                    Appointment newApp = new Appointment(
-                            appointmentId, clientId, agentId, propertyId,
-                            appointmentDate, timeSlot, status, notes
-                    );
-
-                    System.out.println("\nProcessing booking...");
-                    boolean success = appointmentService.bookAppointment(newApp);
-
-                    if (success) {
-                        System.out.println("SUCCESS: Appointment booked successfully and saved!");
+                    Appointment app = new Appointment(id, clientId, agentId, propertyId, date, time, status, notes);
+                    if (appointmentService.bookAppointment(app)) {
+                        System.out.println("✅ Appointment booked successfully!");
                     } else {
-                        System.out.println("FAILED: Conflict detected. Agent is already booked at this time slot!");
+                        System.out.println("❌ Failed to book appointment.");
                     }
                     break;
 
-                case "2":
-                    System.out.println("\n--- All Scheduled Appointments ---");
-                    List<Appointment> allApps = appointmentRepository.getAllAppointments();
-
+                case 2:
+                    List<Appointment> allApps = appointmentService.getAllAppointments();
+                    System.out.println("\n--- All Appointments ---");
                     if (allApps.isEmpty()) {
                         System.out.println("No appointments found.");
                     } else {
-                        for (Appointment app : allApps) {
-                            System.out.println("ID: " + app.getAppointmentId() +
-                                    " | Client: " + app.getClientId() +
-                                    " | Agent: " + app.getAgentId() +
-                                    " | Date: " + app.getAppointmentDate() +
-                                    " | Slot: " + app.getTimeSlot() +
-                                    " | Status: " + app.getStatus());
+                        for (Appointment a : allApps) {
+                            System.out.println(a);
                         }
                     }
                     break;
 
-                case "3":
-                    System.out.print("Enter Property ID (e.g. P001): ");
-                    String propId = scanner.nextLine();
+                case 3:
+                    System.out.print("Enter Appointment ID to Reschedule: ");
+                    String resId = scanner.nextLine();
+                    System.out.print("Enter New Date (YYYY-MM-DD): ");
+                    String newDate = scanner.nextLine();
+                    System.out.print("Enter New Time (HH:MM): ");
+                    String newTime = scanner.nextLine();
 
-                    System.out.print("Enter Title (e.g. Luxury Villa): ");
-                    String title = scanner.nextLine();
-
-                    System.out.print("Enter Location (e.g. Colombo): ");
-                    String location = scanner.nextLine();
-
-                    System.out.print("Enter Price (e.g. 250000.0): ");
-                    double price = Double.parseDouble(scanner.nextLine());
-
-                    System.out.print("Enter Type (e.g. House/Apartment/Land): ");
-                    String type = scanner.nextLine();
-
-                    System.out.print("Enter Bedrooms (e.g. 3): ");
-                    int bedrooms = Integer.parseInt(scanner.nextLine());
-
-                    System.out.print("Enter Bathrooms (e.g. 2): ");
-                    int bathrooms = Integer.parseInt(scanner.nextLine());
-
-                    System.out.print("Enter Status (e.g. Available/Sold): ");
-                    String propStatus = scanner.nextLine();
-
-                    Property newProperty = new Property(
-                            propId, title, location, price, type, bedrooms, bathrooms, propStatus
-                    );
-
-                    boolean propAdded = propertyService.addProperty(newProperty);
-                    if (propAdded) {
-                        System.out.println("SUCCESS: Property added and saved successfully!");
+                    if (appointmentService.rescheduleAppointment(resId, newDate, newTime)) {
+                        System.out.println("✅ Appointment rescheduled successfully!");
                     } else {
-                        System.out.println("FAILED: Could not add property.");
+                        System.out.println("❌ Appointment ID not found.");
                     }
                     break;
 
-                case "4":
-                    System.out.println("\n--- All Registered Properties ---");
-                    List<Property> allProps = propertyService.getAllProperties();
+                case 4:
+                    System.out.print("Enter Appointment ID to Cancel: ");
+                    String cancelId = scanner.nextLine();
 
-                    if (allProps.isEmpty()) {
-                        System.out.println("No properties found.");
+                    if (appointmentService.cancelAppointment(cancelId)) {
+                        System.out.println("✅ Appointment canceled and removed successfully!");
                     } else {
-                        for (Property prop : allProps) {
-                            System.out.println(prop);
+                        System.out.println("❌ Appointment ID not found.");
+                    }
+                    break;
+
+                case 5:
+                    System.out.print("Enter Client ID to Search: ");
+                    String searchClientId = scanner.nextLine();
+                    List<Appointment> clientApps = appointmentService.searchByClientId(searchClientId);
+
+                    System.out.println("\n--- Search Results ---");
+                    if (clientApps.isEmpty()) {
+                        System.out.println("No appointments found for Client ID: " + searchClientId);
+                    } else {
+                        for (Appointment a : clientApps) {
+                            System.out.println(a);
                         }
                     }
                     break;
 
-                case "5":
-                    running = false;
-                    System.out.println("Thank you for using the system. Goodbye!");
-                    break;
+                case 6:
+                    System.out.println("Exiting System... Thank you!");
+                    scanner.close();
+                    return;
 
                 default:
-                    System.out.println("Invalid option! Please enter a number between 1 and 5.");
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
-
-        scanner.close();
     }
 }

@@ -1,46 +1,55 @@
 package com.realestate.repository;
 
 import com.realestate.model.Appointment;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AppointmentRepository {
-    private final String filePath = "appointments.txt";
+    private static final String FILE_PATH = "appointments.txt";
 
-    public boolean saveAppointment(Appointment appointment) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(appointment.toFileFormat());
+    // Create / Save single appointment
+    public void save(Appointment appointment) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            writer.write(appointment.toCSV());
             writer.newLine();
-            return true;
         } catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
-            return false;
+            System.out.println("Error saving appointment: " + e.getMessage());
         }
     }
 
-    public List<Appointment> getAllAppointments() {
-        List<Appointment> list = new ArrayList<>();
-        File file = new File(filePath);
+    // Read / Find all appointments
+    public List<Appointment> findAll() {
+        List<Appointment> appointments = new ArrayList<>();
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            return appointments;
+        }
 
-        if (!file.exists()) return list;
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] data = line.split(",");
-                if (data.length >= 8) {
-                    Appointment app = new Appointment(
-                            data[0], data[1], data[2], data[3],
-                            data[4], data[5], data[6], data[7]
-                    );
-                    list.add(app);
+                Appointment appointment = Appointment.fromCSV(line);
+                if (appointment != null) {
+                    appointments.add(appointment);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+            System.out.println("Error reading appointments: " + e.getMessage());
         }
-        return list;
+        return appointments;
+    }
+
+    // Update / Delete - Rewrite all appointments back to file
+    public void saveAll(List<Appointment> appointments) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+            for (Appointment app : appointments) {
+                writer.write(app.toCSV());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error updating appointments file: " + e.getMessage());
+        }
     }
 }
